@@ -6,6 +6,10 @@ import model.type.IntegerType;
 import model.value.IValue;
 import model.value.BooleanValue;
 public record RelationalExpression(String operator, IExpression leftExpression, IExpression rightExpression) implements IExpression {
+    @Override
+    public IExpression deepCopy() {
+        return new RelationalExpression(operator, leftExpression.deepCopy(), rightExpression.deepCopy());
+    }
 
     @Override
     public IValue evaluate(IMyDictionary<String, IValue> symTable) throws Exception {

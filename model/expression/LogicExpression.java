@@ -8,6 +8,10 @@ import model.value.BooleanValue;
 
 public record LogicExpression(String operator, IExpression leftExpression, IExpression rightExpression) implements IExpression {
     @Override
+    public IExpression deepCopy() {
+        return new LogicExpression(operator, leftExpression.deepCopy(), rightExpression.deepCopy());
+    }
+    @Override
     public String toString() {
         return leftExpression.toString() + " " + operator + " " + rightExpression.toString();
     }

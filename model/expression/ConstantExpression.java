@@ -5,6 +5,10 @@ import model.value.IValue;
 
 public record ConstantExpression(IValue value) implements IExpression {
     @Override
+    public IExpression deepCopy() {
+        return new ConstantExpression(value.deepCopy());
+    }
+    @Override
     public IValue evaluate(IMyDictionary<String,IValue> symTable) {
         return value;
     }

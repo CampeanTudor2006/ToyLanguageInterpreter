@@ -2,6 +2,10 @@ package model.type;
 
 public class StringType implements IType {
     @Override
+    public IType deepCopy() {
+        return new StringType();
+    }
+    @Override
     public boolean equals(Object other) {
         return other instanceof StringType;
     }

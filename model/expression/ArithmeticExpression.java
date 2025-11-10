@@ -11,6 +11,10 @@ import model.value.IntegerValue;
 
 public record ArithmeticExpression(String operator, IExpression leftExpression, IExpression rightExpression) implements IExpression {
     @Override
+    public IExpression deepCopy() {
+        return new ArithmeticExpression(operator, leftExpression.deepCopy(), rightExpression.deepCopy());
+    }
+    @Override
     public IValue evaluate(IMyDictionary<String, IValue> symTable) throws Exception {
         IValue leftValue = leftExpression.evaluate(symTable);
         IValue rightValue = rightExpression.evaluate(symTable);

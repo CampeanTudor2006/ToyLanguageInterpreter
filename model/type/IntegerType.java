@@ -5,6 +5,10 @@ import model.value.IValue;
 
 public class IntegerType implements IType {
     @Override
+    public IType deepCopy() {
+        return new IntegerType();
+    }
+    @Override
     public boolean equals(Object other) {
         return other instanceof IntegerType;
     }
