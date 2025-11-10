@@ -1,0 +1,40 @@
+package model.statement;
+
+
+import exception.NotDefinedException;
+import exception.TypeMissMatchException;
+import model.expression.IExpression;
+import model.adts.IMyDictionary;
+import model.type.IType;
+import model.value.IValue;
+
+public record AssignmentStatement(String variableName, IExpression expression) implements IStatement {
+
+    @Override
+    public ProgramState execute(ProgramState state) throws Exception {
+        IMyDictionary<String, IValue> symbolTable = state.getSymTable();
+        if (!symbolTable.isDefined(variableName)) {
+            throw new NotDefinedException("Variable " + variableName + " is not defined.");
+        }
+        IValue value = expression.evaluate(symbolTable); // Aceasta este valoarea NOUĂ
+
+
+        IValue currentValue = symbolTable.getValue(variableName);
+        IType variableType = currentValue.getType();
+        if (!value.getType().equals(variableType)) {
+            throw new TypeMissMatchException("Type mismatch: cannot assign " + value.getType() + " to variable " + variableName + " of type " + variableType);
+        }
+        symbolTable.update(variableName, value);
+        return state;
+    }
+
+    @Override
+    public IStatement deepCopy() {
+        return new AssignmentStatement(variableName, expression);
+    }
+
+    @Override
+    public String toString() {
+        return variableName + " = " + expression.toString();
+    }
+}
