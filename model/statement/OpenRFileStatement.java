@@ -1,7 +1,9 @@
 package model.statement;
 
 import exception.FileException;
+import exception.MyException;
 import exception.TypeMissMatchException;
+import model.adts.IHeap;
 import model.expression.IExpression;
 import model.adts.IMyDictionary;
 import model.type.StringType;
@@ -14,11 +16,12 @@ import java.io.IOException;
 
 public record OpenRFileStatement(IExpression expression) implements IStatement {
     @Override
-    public ProgramState execute(ProgramState state) throws Exception {
+    public ProgramState execute(ProgramState state) throws MyException {
         IMyDictionary<String, IValue> symbolTable = state.getSymTable();
         IMyDictionary<StringValue, BufferedReader> fileTable = state.getFileTable();
+        IHeap heap = state.getHeap();
 
-        IValue value = expression.evaluate(symbolTable);
+        IValue value = expression.evaluate(symbolTable,heap);
         if (!value.getType().equals(new StringType())) {
             throw new TypeMissMatchException("Expression must evaluate to a string.");
         }
@@ -42,7 +45,7 @@ public record OpenRFileStatement(IExpression expression) implements IStatement {
 
     @Override
     public IStatement deepCopy() {
-        return new OpenRFileStatement(expression);
+        return new OpenRFileStatement(expression.deepCopy());
     }
 
     @Override

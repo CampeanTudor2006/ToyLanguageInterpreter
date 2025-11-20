@@ -1,6 +1,6 @@
 package exception;
 
-public class NotDefinedException extends RuntimeException {
+public class NotDefinedException extends MyException {
     public NotDefinedException(String message) {
         super(message);
     }

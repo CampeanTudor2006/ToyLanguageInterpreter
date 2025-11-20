@@ -1,6 +1,6 @@
 package exception;
 
-public class TypeMissMatchException extends RuntimeException {
+public class TypeMissMatchException extends MyException {
     public TypeMissMatchException(String message) {
         super(message);
     }

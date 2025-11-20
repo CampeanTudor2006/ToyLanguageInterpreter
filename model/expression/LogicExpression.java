@@ -1,6 +1,9 @@
 package model.expression;
 
 import exception.MyException;
+import exception.TypeMissMatchException;
+import exception.UnknowOperatorException;
+import model.adts.IHeap;
 import model.adts.IMyDictionary;
 import model.type.BooleanType;
 import model.value.IValue;
@@ -17,16 +20,16 @@ public record LogicExpression(String operator, IExpression leftExpression, IExpr
     }
 
     @Override
-    public IValue evaluate(IMyDictionary<String, IValue> symTable) throws Exception {
-        IValue leftValue = leftExpression.evaluate(symTable);
-        IValue rightValue = rightExpression.evaluate(symTable);
+    public IValue evaluate(IMyDictionary<String, IValue> symTable, IHeap heap) throws MyException {
+        IValue leftValue = leftExpression.evaluate(symTable,heap);
+        IValue rightValue = rightExpression.evaluate(symTable,heap);
 
         if (!leftValue.getType().equals(new BooleanType())) {
-            throw new MyException("First operand is not a boolean.");
+            throw new TypeMissMatchException("First operand is not a boolean.");
         }
 
         if (!rightValue.getType().equals(new BooleanType())) {
-            throw new MyException("Second operand is not a boolean.");
+            throw new TypeMissMatchException("Second operand is not a boolean.");
         }
 
         boolean leftBool = ((BooleanValue) leftValue).value();
@@ -35,7 +38,7 @@ public record LogicExpression(String operator, IExpression leftExpression, IExpr
         return switch (operator) {
             case "&&" -> new BooleanValue(leftBool && rightBool);
             case "||" -> new BooleanValue(leftBool || rightBool);
-            default -> throw new MyException("Unknown logic operator: " + operator);
+            default -> throw new UnknowOperatorException("Unknown logic operator: " + operator);
         };
     }
 }

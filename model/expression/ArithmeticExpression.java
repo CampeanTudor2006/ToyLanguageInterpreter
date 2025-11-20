@@ -2,28 +2,30 @@ package model.expression;
 
 import exception.DivisionByZeroException;
 import exception.MyException;
+import exception.TypeMissMatchException;
+import exception.UnknowOperatorException;
+import model.adts.IHeap;
 import model.adts.IMyDictionary;
-import model.type.BooleanType;
-import model.type.IType;
 import model.type.IntegerType;
 import model.value.IValue;
 import model.value.IntegerValue;
 
 public record ArithmeticExpression(String operator, IExpression leftExpression, IExpression rightExpression) implements IExpression {
+
     @Override
     public IExpression deepCopy() {
         return new ArithmeticExpression(operator, leftExpression.deepCopy(), rightExpression.deepCopy());
     }
     @Override
-    public IValue evaluate(IMyDictionary<String, IValue> symTable) throws Exception {
-        IValue leftValue = leftExpression.evaluate(symTable);
-        IValue rightValue = rightExpression.evaluate(symTable);
+    public IValue evaluate(IMyDictionary<String, IValue> symTable,IHeap heap) throws MyException {
+        IValue leftValue = leftExpression.evaluate(symTable,heap);
+        IValue rightValue = rightExpression.evaluate(symTable,heap);
 
         if (!leftValue.getType().equals(new IntegerType())) {
-            throw new MyException("First operand is not an integer.");
+            throw new TypeMissMatchException("First operand is not an integer.");
         }
         if (!rightValue.getType().equals(new IntegerType())) {
-            throw new MyException("Second operand is not an integer.");
+            throw new TypeMissMatchException("Second operand is not an integer.");
         }
 
         int leftInt = ((IntegerValue) leftValue).value();
@@ -39,7 +41,7 @@ public record ArithmeticExpression(String operator, IExpression leftExpression, 
                 }
                 yield new IntegerValue(leftInt / rightInt);
             }
-            default -> throw new MyException("Unknown arithmetic operator: " + operator);
+            default -> throw new UnknowOperatorException("Unknown arithmetic operator: " + operator);
         };
     }
 

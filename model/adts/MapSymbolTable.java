@@ -21,7 +21,7 @@
         }
 
         @Override
-        public V getValue(K key) throws Exception {
+        public V getValue(K key) throws MyException {
             if(!isDefined(key)){
                 throw new NotDefinedException("Variable " + key + " is not defined.");
             }

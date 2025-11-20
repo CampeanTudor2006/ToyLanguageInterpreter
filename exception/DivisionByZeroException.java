@@ -1,6 +1,6 @@
 package exception;
 
-public class DivisionByZeroException extends RuntimeException {
+public class DivisionByZeroException extends MyException {
     public DivisionByZeroException(String message) {
         super(message);
     }

@@ -1,8 +1,10 @@
 package model.statement;
 
 import exception.FileException;
+import exception.MyException;
 import exception.NotDefinedException;
 import exception.TypeMissMatchException;
+import model.adts.IHeap;
 import model.expression.IExpression;
 import model.adts.IMyDictionary;
 import model.type.IntegerType;
@@ -14,30 +16,28 @@ import model.value.StringValue;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-public class ReadFileStatement implements IStatement{
-
-    private final IExpression expression;
-    private final String varName;
-
-    public ReadFileStatement(IExpression expression, String varName) {
-        this.expression = expression;
-        this.varName = varName;
-    }
+public record ReadFileStatement(IExpression expression, String varName) implements IStatement {
 
     @Override
-    public ProgramState execute(ProgramState state) throws Exception {
+    public ProgramState execute(ProgramState state) throws MyException {
         IMyDictionary<String, IValue> symTable = state.getSymTable();
         IMyDictionary<StringValue, BufferedReader> fileTable = state.getFileTable();
+        IHeap heap = state.getHeap();
 
         if (!symTable.isDefined(varName)) {
             throw new NotDefinedException("Error: Variable '" + varName + "' is not defined in SymTable.");
         }
 
-        IValue expValue = symTable.getValue(varName);
+        IValue expValue = null;
+        try {
+            expValue = symTable.getValue(varName);
+        } catch (MyException e) {
+            throw new RuntimeException(e);
+        }
         if (!expValue.getType().equals(new IntegerType())) {
             throw new NotDefinedException("Error: Variable '" + varName + "' is not of type Integer.");
         }
-        IValue evaluatedValue = expression.evaluate(symTable);
+        IValue evaluatedValue = expression.evaluate(symTable,heap);
         if (!evaluatedValue.getType().equals(new StringType())) {
             throw new TypeMissMatchException("Error: Expression does not evaluate to a String.");
         }
@@ -57,8 +57,7 @@ public class ReadFileStatement implements IStatement{
         IntegerValue intValue;
         if (line == null) {
             intValue = new IntegerValue(0);
-        }
-        else {
+        } else {
             try {
                 intValue = new IntegerValue(Integer.parseInt(line));
             } catch (NumberFormatException e) {
@@ -71,7 +70,7 @@ public class ReadFileStatement implements IStatement{
 
     @Override
     public IStatement deepCopy() {
-        return new ReadFileStatement(expression, varName);
+        return new ReadFileStatement(expression.deepCopy(), varName);
     }
 
     @Override

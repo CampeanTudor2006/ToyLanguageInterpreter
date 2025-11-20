@@ -1,6 +1,6 @@
 package exception;
 
-public class FileException extends RuntimeException {
+public class FileException extends MyException {
     public FileException(String message) {
         super(message);
     }

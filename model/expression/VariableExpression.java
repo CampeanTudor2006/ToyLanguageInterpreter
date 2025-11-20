@@ -2,6 +2,7 @@ package model.expression;
 
 import exception.MyException;
 import exception.NotDefinedException;
+import model.adts.IHeap;
 import model.value.IValue;
 import model.adts.IMyDictionary;
 
@@ -11,11 +12,15 @@ public record VariableExpression(String name) implements IExpression {
         return new VariableExpression(name);
     }
     @Override
-    public IValue evaluate(IMyDictionary<String,IValue> symTable) throws Exception {
+    public IValue evaluate(IMyDictionary<String,IValue> symTable, IHeap heap) throws MyException {
         if (!symTable.isDefined(name)) {
             throw new NotDefinedException("Variable '" + name + "' is not defined.");
         }
-        return symTable.getValue(name);
+        try {
+            return symTable.getValue(name);
+        } catch (MyException e) {
+            throw new RuntimeException(e);
+        }
     }
     @Override
     public String toString() {

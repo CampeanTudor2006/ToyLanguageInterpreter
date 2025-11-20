@@ -1,6 +1,7 @@
     package repository;
 
     import exception.MyException;
+    import exception.RepoException;
     import model.statement.ProgramState;
 
     import java.io.BufferedWriter;
@@ -20,9 +21,9 @@
         }
 
         @Override
-        public ProgramState getCurrentProgram() throws Exception {
+        public ProgramState getCurrentProgram() throws MyException {
             if (programStates.isEmpty()) {
-                throw new MyException("Repository is empty. No program state found.");
+                throw new RepoException("Repository is empty. No program state found.");
             }
             return programStates.getFirst();
         }
@@ -33,12 +34,12 @@
         }
 
        @Override
-        public void logProgramState() throws Exception {
+        public void logProgramState() throws MyException {
             ProgramState currentState = getCurrentProgram();
             try (PrintWriter logFile = new PrintWriter(new BufferedWriter(new FileWriter(logFilePath, true)))) {
                 logFile.println(currentState.toString());
             } catch (IOException e) {
-                throw new MyException("Error writing to log file: " + e.getMessage());
+                throw new RepoException("Error writing to log file: " + e.getMessage());
             }
         }
     }

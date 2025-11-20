@@ -1,6 +1,9 @@
 package model.expression;
 
+import exception.MyException;
 import exception.TypeMissMatchException;
+import exception.UnknowOperatorException;
+import model.adts.IHeap;
 import model.adts.IMyDictionary;
 import model.type.IntegerType;
 import model.value.IValue;
@@ -12,9 +15,9 @@ public record RelationalExpression(String operator, IExpression leftExpression, 
     }
 
     @Override
-    public IValue evaluate(IMyDictionary<String, IValue> symTable) throws Exception {
-        IValue leftValue = leftExpression.evaluate(symTable);
-        IValue rightValue = rightExpression.evaluate(symTable);
+    public IValue evaluate(IMyDictionary<String, IValue> symTable, IHeap heap) throws MyException {
+        IValue leftValue = leftExpression.evaluate(symTable,heap);
+        IValue rightValue = rightExpression.evaluate(symTable,heap);
 
         if(!leftValue.getType().equals(new IntegerType()) || !rightValue.getType().equals(new IntegerType())) {
             throw new TypeMissMatchException("Type mismatch in relational expression: " + this.toString());
@@ -29,7 +32,7 @@ public record RelationalExpression(String operator, IExpression leftExpression, 
             case "!=" -> new BooleanValue(leftInt != rightInt);
             case ">" -> new BooleanValue(leftInt > rightInt);
             case ">=" -> new BooleanValue(leftInt >= rightInt);
-            default -> throw new TypeMissMatchException("Invalid relational operator: " + operator);
+            default -> throw new UnknowOperatorException("Invalid relational operator: " + operator);
         };
     }
 

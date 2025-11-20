@@ -1,5 +1,6 @@
 package model.statement;
 
+import exception.AlreadyDefinedException;
 import exception.MyException;
 import model.type.IType;
 import model.value.IValue;
@@ -8,12 +9,12 @@ import model.adts.IMyDictionary;
 
 public record VariableDeclarationStatement(IType type, String name) implements IStatement {
     @Override
-    public ProgramState execute(ProgramState state) throws Exception {
+    public ProgramState execute(ProgramState state) throws MyException {
         IMyDictionary<String, IValue> symbolTable = state.getSymTable();
 
 
         if (symbolTable.isDefined(name)) {
-            throw new MyException("Variable already defined: " + name);
+            throw new AlreadyDefinedException("Variable already defined: " + name);
         }
 
         IValue defaultValue = type.defaultValue();

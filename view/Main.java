@@ -2,12 +2,11 @@ package view;
 
 import controller.Controller;
 import model.adts.*;
-import model.expression.ArithmeticExpression;
-import model.expression.ConstantExpression;
-import model.expression.VariableExpression;
+import model.expression.*;
 import model.statement.*;
 import model.type.BooleanType;
 import model.type.IntegerType;
+import model.type.RefType;
 import model.type.StringType;
 import model.value.BooleanValue;
 import model.value.IValue;
@@ -23,34 +22,48 @@ public class Main {
         IMyDictionary<String, IValue> symTable = new MapSymbolTable<>();
         IOut<IValue> out = new ListOut<>();
         IMyDictionary<StringValue, java.io.BufferedReader> fileTable = new MapSymbolTable<>();
+        IHeap heap = new MyHeap();
 
         IStatement example1 = getExample1();
-        ProgramState state1 = new ProgramState(exeStack, symTable, out, fileTable,example1);
+        ProgramState state1 = new ProgramState(exeStack, symTable, out, fileTable,heap,example1);
         IRepo repo1 = new Repo("files/log1.txt", state1);
         Controller controller1 = new Controller(repo1);
 
         IStatement example2 = getExample2();
-        ProgramState state2 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable<>(), new ListOut<>(), new MapSymbolTable<>(), example2);
+        ProgramState state2 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable<>(), new ListOut<>(), new MapSymbolTable<>(),new MyHeap(), example2);
         IRepo repo2 = new Repo("files/log2.txt", state2);
         Controller controller2 = new Controller(repo2);
 
         IStatement example3 = getExample3();
         ProgramState state3 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable
-<>(), new ListOut<>(), new MapSymbolTable<>(), example3);
+<>(), new ListOut<>(), new MapSymbolTable<>(),new MyHeap(), example3);
         IRepo repo3 = new Repo("files/log3.txt", state3);
         Controller controller3 = new Controller(repo3);
 
         IStatement example4 = getExample4_FileOperations();
         ProgramState state4 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable
-<>(), new ListOut<>(), new MapSymbolTable<>(), example4);
+<>(), new ListOut<>(), new MapSymbolTable<>(),new MyHeap(), example4);
         IRepo repo4 = new Repo("files/log4.txt", state4);
         Controller controller4 = new Controller(repo4);
+
+        IStatement example5 = getExample5_Heap();
+        ProgramState state5 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable<>(), new ListOut<>(), new MapSymbolTable<>(),new MyHeap(), example5);
+        IRepo repo5 = new Repo("files/log5.txt", state5);
+        Controller controller5 = new Controller(repo5);
+
+        IStatement example6 = getExample6_While();
+        ProgramState state6 = new ProgramState(new StackExecutionStack<>(), new MapSymbolTable<>(), new ListOut<>(), new MapSymbolTable<>(),new MyHeap(), example6);
+        IRepo repo6 = new Repo("files/log6.txt", state6);
+        Controller controller6 = new Controller(repo6);
+
 
         TextMenu menu = new TextMenu();
         menu.addCommand(new RunExampleCommand("1", "Execute example 1", controller1));
         menu.addCommand(new RunExampleCommand("2", "Execute example 2", controller2));
         menu.addCommand(new RunExampleCommand("3", "Execute example 3", controller3));
         menu.addCommand(new RunExampleCommand("4", "Execute example 4", controller4));
+        menu.addCommand(new RunExampleCommand("5", "Execute example 5", controller5));
+        menu.addCommand(new RunExampleCommand("6", "Execute example 6", controller6));
         menu.addCommand(new ExitCommand("0", "Exit"));
         menu.show();
     }
@@ -148,6 +161,60 @@ public class Main {
                                                 )
                                         )
                                 )
+                        )
+                )
+        );
+    }
+    private static IStatement getExample5_Heap() {
+        // Ref int v; new(v,20); print(rH(v)); wH(v,30); print(rH(v)+5);
+
+        return new CompoundStatement(
+                // Ref int v;
+                new VariableDeclarationStatement(new RefType(new IntegerType()), "v"),
+                new CompoundStatement(
+                        // new(v, 20);
+                        new NewStatement("v", new ConstantExpression(new IntegerValue(20))),
+                        new CompoundStatement(
+                                // print(rH(v));
+                                new PrintStatement(new ReadHeapExpression(new VariableExpression("v"))),
+                                new CompoundStatement(
+                                        // wH(v, 30);
+                                        new WriteHeapStatement("v", new ConstantExpression(new IntegerValue(30))),
+                                        // print(rH(v) + 5);
+                                        new PrintStatement(
+                                                new ArithmeticExpression("+",
+                                                        new ReadHeapExpression(new VariableExpression("v")),
+                                                        new ConstantExpression(new IntegerValue(5))
+                                                )
+                                        )
+                                )
+                        )
+                )
+        );
+    }
+    private static IStatement getExample6_While() {
+        // int v; v=4; while (v>0) {print(v); v=v-1;} print(v)
+        return new CompoundStatement(
+                new VariableDeclarationStatement(new IntegerType(), "v"),
+                new CompoundStatement(
+                        new AssignmentStatement("v", new ConstantExpression(new IntegerValue(4))),
+                        new CompoundStatement(
+                                new WhileStatement(
+                                        // Condiția: v > 0
+                                        new RelationalExpression(">", new VariableExpression("v"), new ConstantExpression(new IntegerValue(0))),
+                                        // Corpul buclei: print(v); v=v-1
+                                        new CompoundStatement(
+                                                new PrintStatement(new VariableExpression("v")),
+                                                new AssignmentStatement("v",
+                                                        new ArithmeticExpression("-",
+                                                                new VariableExpression("v"),
+                                                                new ConstantExpression(new IntegerValue(1))
+                                                        )
+                                                )
+                                        )
+                                ),
+                                // După while: print(v)
+                                new PrintStatement(new VariableExpression("v"))
                         )
                 )
         );

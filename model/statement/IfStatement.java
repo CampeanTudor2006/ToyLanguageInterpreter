@@ -1,6 +1,7 @@
 package model.statement;
 
 
+import exception.MyException;
 import exception.TypeMissMatchException;
 import model.expression.IExpression;
 import model.value.IValue;
@@ -9,8 +10,8 @@ import model.value.BooleanValue;
 public record IfStatement(IExpression condition, IStatement thenBranch, IStatement elseBranch) implements IStatement {
 
     @Override
-    public ProgramState execute(ProgramState state) throws Exception {
-        IValue result = condition.evaluate(state.getSymTable());
+    public ProgramState execute(ProgramState state) throws MyException {
+        IValue result = condition.evaluate(state.getSymTable(), state.getHeap());
         if (result instanceof BooleanValue(boolean value)) {
             if (value) {
                 state.getExeStack().push(thenBranch);
@@ -25,7 +26,7 @@ public record IfStatement(IExpression condition, IStatement thenBranch, IStateme
 
     @Override
     public IStatement deepCopy() {
-        return new IfStatement(condition, thenBranch.deepCopy(), elseBranch.deepCopy());
+        return new IfStatement(condition.deepCopy(), thenBranch.deepCopy(), elseBranch.deepCopy());
     }
 
     @Override

@@ -2,6 +2,7 @@ package model.statement;
 
 import model.adts.*;
 import model.value.IValue;
+import model.statement.IStatement;
 import model.value.StringValue;
 
 import java.io.BufferedReader;
@@ -12,6 +13,7 @@ public class ProgramState{
     private IMyDictionary<String, IValue> symTable;
     private IOut<IValue> out;
     private IMyDictionary<StringValue, BufferedReader> fileTable;
+    private IHeap heap;
 
 
     private IStatement originalProgram;
@@ -20,12 +22,15 @@ public class ProgramState{
                         IMyDictionary<String, IValue> symtbl,
                         IOut<IValue> ot,
                         IMyDictionary<StringValue, BufferedReader> fileTbl,
+                        IHeap heap,
                         IStatement prg) {
         this.exeStack = stk;
         this.symTable = symtbl;
         this.out = ot;
         this.fileTable = fileTbl;
+        this.heap = heap;
         this.originalProgram = prg.deepCopy();
+
 
         // Logica din constructor: adaugă programul pe stivă
         stk.push(prg);
@@ -70,6 +75,15 @@ public class ProgramState{
     public void setOriginalProgram(IStatement originalProgram) {
         this.originalProgram = originalProgram;
     }
+
+    public IHeap getHeap() {
+        return heap;
+    }
+
+    public void setHeap(IHeap heap) {
+        this.heap = heap;
+    }
+
     @Override
     public String toString() {
         // Folosim StringBuilder pentru o concatenare eficientă
@@ -90,6 +104,9 @@ public class ProgramState{
             sb.append(key.toString()).append("\n");
         }
 
+        sb.append("Heap:\n");
+        sb.append(heap.toString());
+
         sb.append("-----------------------\n");
         return sb.toString();
     }
@@ -103,6 +120,8 @@ public class ProgramState{
 
         IMyDictionary<StringValue, BufferedReader> sameFileTable = this.fileTable;
 
-        return new ProgramState(newStack, newSymTable, newOut, sameFileTable, this.originalProgram);
+        IHeap sameHeap = this.heap;
+
+        return new ProgramState(newStack, newSymTable, newOut, sameFileTable,sameHeap, this.originalProgram.deepCopy());
     }
 }
